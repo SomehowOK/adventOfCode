@@ -4,7 +4,7 @@
        input-output section.
        file-control.
            select InputFile assign to
-            "/home/somehowok/adventOfCode/02.12/input.txt"
+            ""
            ORGANIZATION IS LINE SEQUENTIAL.
 
        data division.
@@ -16,12 +16,13 @@
        working-storage section.
        01 Input-R      PIC X(23).
        01 InputLength  PIC 9(2).
-       01 InputTrim    PIC X(23).
+       01 InputTrim   PIC X(24) Value Spaces.
        01 CNTR         PIC 9(2).
        01 CNTR-Table   PIC 9(2).
-       01 CNTR-Start   PIC 9(2) Value 01.
+       01 CNTR-Start   PIC 9(2).
        01 CNTR-EXTRA   PIC 9(2).
        01 CNTR-End     PIC 9(2).
+       01 DEBUG1        PIC X(20).
 
        01 InputFile-Status   PIC XX.
            88 InputFile-OK   VALUE "00".
@@ -37,6 +38,7 @@
            Stop run.
        
        Main section.
+           Display InputTrim
            Open Input InputFile.
            Move Zeros TO InputFile-Status
            Move 1 TO TableIndex
@@ -49,8 +51,6 @@
                        ADD 1 TO TableIndex
 
                        perform TrimString
-                       display InputTrim
-                       display NumberTable
                        perform CreateTable
                        perform InitTable
                    
@@ -61,7 +61,6 @@
        Exit. 
 
        TrimString Section. 
-
            MOVE FUNCTION REVERSE(InputRecord) TO Input-R.
                        
            Inspect Input-R Tallying CNTR FOR leading spaces.
@@ -74,32 +73,31 @@
        Exit. 
 
        CreateTable Section.
-           Display "moin"
+           MOVE 01 TO CNTR-START
+           Display InputTrim
            PERFORM VARYING CNTR-End
            
                    FROM 1 BY 1 
-                   UNTIL CNTR-End > FUNCTION LENGTH(InputTrim)
-                   ADD 1 TO CNTR-EXTRA
-             
+                   UNTIL CNTR-End >= InputLength
 
-                   Display InputTrim(CNTR-END:1)
+                   MOVE InputTrim(CNTR-END:1) TO DEBUG1
+                   IF InputTrim(CNTR-END:1) = " "
 
-                   IF InputTrim(CNTR-EXTRA:1) = " "
-                      ADD 1 TO TableIndex
-
-                      MOVE InputTrim(CNTR-Start:CNTR-EXTRA - 1)
+                      MOVE InputTrim(CNTR-Start:CNTR-EXTRA)
                       TO Table-Data(TableIndex)
-
-                      Display Table-Data(TableIndex)
-
 
                       Compute CNTR-Start = 
                               CNTR-End + 1
-                      Display "safe"
-                      
-                      MOVE ZEROS TO CNTR-EXTRA
+
+                      MOVE 00 TO CNTR-EXTRA
+                      ADD 1 TO TableIndex
                    end-if
+                   ADD 1 TO CNTR-EXTRA
            end-perform
+
+           MOVE InputTrim(CNTR-Start:CNTR-EXTRA)
+                      TO Table-Data(TableIndex)
+
            Display NumberTable
        Exit.
 
@@ -113,5 +111,9 @@
            end-perform
            MOVE ZEROS TO CNTR-TABLE
            MOVE ZEROS TO TABLEINDEX
-           Display NumberTable
+           Move 01 TO CNTR-Start
+           Move ZEROS TO CNTR-END
+           Move ZEROS TO CNTR-EXTRA
+           MOVE ZEROS TO CNTR
+
        Exit.
